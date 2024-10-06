@@ -40,13 +40,13 @@ The Chronicles of Exoplanet Exploration project aims to provide tools and data f
 
 ## User Scoring and Titles
 
-- SAt the end of the quiz, users are awarded a title based on the number of questions they answer correctly:
+- At the end of the quiz, users are awarded a title based on the number of questions they answer correctly:
 
-### Novice: 0-4 correct answers
-### Beginner: 5-7 correct answers
-### Intermediate: 8-10 correct answers
-### Expert: 11-12 correct answers
-### Master: 13-15 correct answers
+            - 5 "Exoplanet Novice",
+            - 10: "Exoplanet Explorer",
+            - 15: "Exoplanet Master",
+            - 20: "Exoplanet Champion",
+            - 25: "Exoplanet Legend"
 - This scoring system encourages users to improve their knowledge and strive for higher titles in future attempts.
 
 ## Resources Used
