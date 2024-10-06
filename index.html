@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #0d1b2a, #1b2631); /* Dark blue gradient */
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.85); /* Slightly darker semi-transparent background */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffcc00; /* Golden color for title */
+            font-size: 2.5em;
+            z-index: 1; /* Ensure title is on top */
+            position: relative; /* Position relative to allow z-index to work */
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #ffcc00; /* Gold button color */
+            color: black;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #e6b800; /* Darker gold on hover */
+        }
+
+        .intro {
+            text-align: center;
+            padding: 40px 0;
+            animation: fadeIn 1s ease-in-out; /* Fade-in effect */
+        }
+
+        .quiz {
+            display: none; /* Initially hidden */
+        }
+
+        .question {
+            font-size: 22px;
+            margin: 20px 0;
+        }
+
+        .category, .difficulty {
+            font-size: 14px;
+            margin: 5px 0;
+            color: #b3b3b3;
+        }
+
+        .answers {
+            list-style: none;
+            padding: 0;
+        }
+
+        .answers li {
+            margin: 10px 0;
+        }
+
+        .explanation {
+            font-style: italic;
+            color: #b3b3b3; /* Lighter grey for explanations */
+        }
+
+        .score {
+            font-size: 18px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .level-up {
+            color: #ff9800; /* Orange color for level-up message */
+            text-align: center;
+            font-size: 22px;
+            margin-top: 20px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745; /* Green button for answers */
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        /* Animation for fade-in effect */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Stars animation */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:url('stars2.jpg') no-repeat center center; /* Use the darker stars image */
+            background-size: cover; /* Cover the entire background */
+            opacity: 0.2; /* Slightly less opacity for more visibility */
+            pointer-events: none;
+        }
+
+        /* Sun graphic */
+        .sun {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ffcc00 40%, #ff9800 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+            transition: box-shadow 0.3s ease; /* Smooth transition */
+        }
+
+        /* Hover effect for sun */
+        .sun:hover {
+            box-shadow: 0 0 50px rgba(255, 204, 0, 0.9); /* Brighter shadow on hover */
+            filter: brightness(1.2); /* Increase brightness on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stars"></div>
+        <div class="sun"></div>
+        <h1>Exoplanet Quiz</h1>
+        <div class="intro">
+            <p>Welcome to the Exoplanet Quiz!</p>
+            <p>Test your knowledge about planets beyond our solar system.</p>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+        <div class="quiz" id="quiz"></div>
+        <button id="nextBtn" class="btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+        <div id="result"></div>
+        <div id="scoreDisplay"></div>
+    </div>
+    <script>
+        const quizData = [
+            {
+            "id": 1,
+            "question": "What is an exoplanet?",
+            "category": "Astronomy",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "A planet in our solar system", "correct": false, "explanation": "This is incorrect because exoplanets are outside our solar system." },
+                { "text": "A moon of a planet", "correct": false, "explanation": "This is incorrect; moons are natural satellites of planets." },
+                { "text": "A star", "correct": false, "explanation": "This is incorrect; a star is a massive celestial body, not a planet." },
+                { "text": "A planet outside our solar system", "correct": true, "explanation": "An exoplanet is a planet that orbits a star outside our solar system." }
+            ]
+        },
+        {
+            "id": 2,
+            "question": "How many exoplanets have been discovered as of 2024?",
+            "category": "Astronomy",
+            "difficulty": "Medium",
+            "answers": [
+                { "text": "Over 5,000", "correct": true, "explanation": "As of 2024, over 5,000 exoplanets have been confirmed." },
+                { "text": "Around 1,000", "correct": false, "explanation": "This is incorrect; the number of discovered exoplanets is much higher." },
+                { "text": "Less than 100", "correct": false, "explanation": "This is incorrect; many more have been discovered." },
+                { "text": "Over 10,000", "correct": false, "explanation": "This is incorrect; while the number is growing, it is not that high yet." }
+            ]
+        },
+        {
+            "id": 3,
+            "question": "What method is commonly used to detect exoplanets?",
+            "category": "Detection Methods",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "Direct imaging", "correct": false, "explanation": "This method is less common due to the difficulty in isolating a planet's light." },
+                { "text": "Spectroscopy", "correct": false, "explanation": "While useful, spectroscopy is typically used for characterizing atmospheres." },
+                { "text": "Gravitational lensing", "correct": false, "explanation": "This method is used in different contexts and is less common for exoplanets." },
+                { "text": "Transit method", "correct": true, "explanation": "The transit method observes the dimming of a star when a planet passes in front of it." }
+            ]
+        },
+        {
+            "id": 4,
+            "question": "What is a 'Super-Earth'?",
+            "category": "Exoplanet Types",
+            "difficulty": "Medium",
+            "answers": [
+                { "text": "A gas giant", "correct": false, "explanation": "This is incorrect; gas giants are much larger and do not fall under the super-Earth category." },
+                { "text": "A planet larger than Earth but smaller than Neptune", "correct": true, "explanation": "Super-Earths are exoplanets with a mass larger than Earth's but smaller than Neptune's." },
+                { "text": "A moon of a planet", "correct": false, "explanation": "This is incorrect; super-Earths are planets, not moons." },
+                { "text": "A terrestrial planet", "correct": false, "explanation": "Super-Earths can be terrestrial or gaseous but are specifically defined by mass." }
+            ]
+        },
+        {
+            "id": 5,
+            "question": "What is the habitable zone?",
+            "category": "Habitability",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "The region around a star where conditions may be right for life", "correct": true, "explanation": "The habitable zone is where temperatures allow for liquid water to exist." },
+                { "text": "The area where asteroids are found", "correct": false, "explanation": "This is incorrect; the habitable zone is about life, not asteroids." },
+                { "text": "The distance from a planet to its star", "correct": false, "explanation": "This is too vague; it refers to the region conducive to life." },
+                { "text": "The region beyond Neptune", "correct": false, "explanation": "This is incorrect; the habitable zone is typically within the inner solar system." }
+            ]
+        },
+        {
+            "id": 6,
+            "question": "Which mission was instrumental in discovering exoplanets?",
+            "category": "Space Missions",
+            "difficulty": "Medium",
+            "answers": [
+                
+                { "text": "Hubble Space Telescope", "correct": false, "explanation": "While Hubble has contributed, it was not primarily focused on exoplanets." },
+                { "text": "Voyager 1", "correct": false, "explanation": "Voyager 1's mission is primarily about our solar system, not exoplanets." },
+                { "text": "Kepler Space Telescope", "correct": true, "explanation": "The Kepler mission was specifically designed to discover exoplanets." },
+                { "text": "Mars Rover", "correct": false, "explanation": "The Mars Rover missions are focused on Mars exploration, not exoplanets." }
+            ]
+        },
+        {
+            "id": 7,
+            "question": "What does the term 'Goldilocks Zone' refer to?",
+            "category": "Habitability",
+            "difficulty": "Easy",
+            "answers": [
+
+                { "text": "The area where asteroids collide", "correct": false, "explanation": "This is incorrect; it refers to temperature conditions for water." },
+                { "text": "The distance of a planet from a black hole", "correct": false, "explanation": "This is incorrect; it refers to star systems, not black holes." },
+                { "text": "The region of space with no planets", "correct": false, "explanation": "This is incorrect; it specifically concerns habitable conditions." },
+                { "text": "The habitable zone where conditions are just right for liquid water", "correct": true, "explanation": "'Goldilocks Zone' describes areas where temperatures are neither too hot nor too cold." }
+            ]
+        },
+        {
+            "id": 8,
+            "question": "What is the main ingredient for life as we know it?",
+            "category": "Biology",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "Water", "correct": true, "explanation": "Water is essential for life and is a key factor in the search for exoplanets." },
+                { "text": "Carbon", "correct": false, "explanation": "While carbon is important, water is the main ingredient." },
+                { "text": "Oxygen", "correct": false, "explanation": "This is incorrect; oxygen is vital but not the main ingredient for life." },
+                { "text": "Hydrogen", "correct": false, "explanation": "This is incorrect; while it’s a building block, water is essential." }
+            ]
+        },
+        {
+            "id": 9,
+            "question": "What type of star is most likely to host exoplanets?",
+            "category": "Astronomy",
+            "difficulty": "Medium",
+            "answers": [
+                { "text": "Sun-like stars", "correct": true, "explanation": "Sun-like stars provide stable conditions for planets." },
+                { "text": "Black holes", "correct": false, "explanation": "Black holes do not host planets." },
+                { "text": "Neutron stars", "correct": false, "explanation": "This is incorrect; neutron stars are hostile to planet formation." },
+                { "text": "Red dwarfs", "correct": false, "explanation": "Red dwarfs can host planets but are not as stable as sun-like stars." }
+            ]
+        },
+        {
+            "id": 10,
+            "question": "What is the significance of the TRAPPIST-1 system?",
+            "category": "Exoplanet Systems",
+            "difficulty": "Medium",
+            "answers": [
+        
+                { "text": "It is the closest star system to Earth", "correct": false, "explanation": "This is incorrect; Proxima Centauri is the closest star system." },
+                { "text": "It has seven Earth-sized planets", "correct": true, "explanation": "TRAPPIST-1 is notable for having seven Earth-sized planets in its habitable zone." },
+                { "text": "It has no planets", "correct": false, "explanation": "This is incorrect; TRAPPIST-1 has several planets." },
+                { "text": "It has a black hole", "correct": false, "explanation": "This is incorrect; TRAPPIST-1 is a star system." }
+            ]
+        },
+        {
+            "id": 11,
+            "question": "Which planet is often called the 'Earth's twin'?",
+            "category": "Astronomy",
+            "difficulty": "Easy",
+            "answers": [
+            
+                { "text": "Mars", "correct": false, "explanation": "This is incorrect; Mars is smaller and has a different atmosphere." },
+                { "text": "Jupiter", "correct": false, "explanation": "This is incorrect; Jupiter is a gas giant and much larger." },
+                { "text": "Mercury", "correct": false, "explanation": "This is incorrect; Mercury is smaller and has a very different environment." },
+                { "text": "Venus", "correct": true, "explanation": "Venus is often referred to as Earth's twin due to its similar size." }
+            ]
+        },
+        {
+            "id": 12,
+            "question": "What does the Drake Equation estimate?",
+            "category": "Astrobiology",
+            "difficulty": "Hard",
+            "answers": [
+               
+                { "text": "The age of the universe", "correct": false, "explanation": "This is incorrect; the equation is about extraterrestrial life." },
+                { "text": "The distance to nearby stars", "correct": false, "explanation": "This is incorrect; it does not estimate distances." },
+                { "text": "The number of extraterrestrial civilizations in our galaxy", "correct": true, "explanation": "The Drake Equation estimates the number of communicative civilizations." },
+                { "text": "The size of the Milky Way", "correct": false, "explanation": "This is incorrect; the equation is not about galaxy size." }
+            ]
+        },
+        {
+            "id": 13,
+            "question": "What is the most common type of exoplanet discovered?",
+            "category": "Exoplanet Types",
+            "difficulty": "Medium",
+            "answers": [
+               
+                { "text": "Gas giants", "correct": false, "explanation": "While common, gas giants are not as numerous as Super-Earths." },
+                { "text": "Terrestrial planets", "correct": false, "explanation": "This is incorrect; terrestrial planets are less frequently discovered." },
+                { "text": "Super-Earths", "correct": true, "explanation": "Super-Earths are the most commonly found type of exoplanet." },
+                { "text": "Mini-Neptunes", "correct": false, "explanation": "This is incorrect; they are not as common as Super-Earths." }
+            ]
+        },
+        {
+            "id": 14,
+            "question": "What is 'dark matter'?",
+            "category": "Cosmology",
+            "difficulty": "Hard",
+            "answers": [
+                { "text": "A form of energy", "correct": false, "explanation": "This is incorrect; dark matter is a type of matter, not energy." },
+                { "text": "Matter that is black", "correct": false, "explanation": "This is misleading; dark matter is not 'black' in color." },
+                { "text": "A type of star", "correct": false, "explanation": "This is incorrect; dark matter is not a star." },
+                { "text": "A type of matter that does not emit light", "correct": true, "explanation": "Dark matter does not interact with electromagnetic forces and is invisible." },
+            ]
+        },
+        {
+            "id": 15,
+            "question": "Which of the following is a gas giant?",
+            "category": "Exoplanet Types",
+            "difficulty": "Easy",
+            "answers": [
+                
+                { "text": "Earth", "correct": false, "explanation": "This is incorrect; Earth is a terrestrial planet." },
+                { "text": "Jupiter", "correct": true, "explanation": "Jupiter is classified as a gas giant due to its large size and gaseous composition." },
+                { "text": "Mars", "correct": false, "explanation": "This is incorrect; Mars is also a terrestrial planet." },
+                { "text": "Venus", "correct": false, "explanation": "This is incorrect; Venus is a rocky planet." }
+            ]
+        },
+        {
+            "id": 16,
+            "question": "What is the main component of Jupiter's atmosphere?",
+            "category": "Exoplanet Composition",
+            "difficulty": "Medium",
+            "answers": [
+                { "text": "Hydrogen", "correct": true, "explanation": "Jupiter's atmosphere is mostly hydrogen, with some helium." },
+                { "text": "Oxygen", "correct": false, "explanation": "This is incorrect; oxygen is not the primary component." },
+                { "text": "Carbon dioxide", "correct": false, "explanation": "This is incorrect; carbon dioxide is present but not a main component." },
+                { "text": "Methane", "correct": false, "explanation": "This is incorrect; methane is a minor component in comparison." }
+            ]
+        },
+        {
+            "id": 17,
+            "question": "Which exoplanet is known for having a large number of water clouds?",
+            "category": "Exoplanet Composition",
+            "difficulty": "Medium",
+            "answers": [
+                
+                { "text": "Kepler-186 f", "correct": false, "explanation": "This is incorrect; while Kepler-186 f is interesting, it is not known for water clouds." },
+                { "text": "Proxima Centauri b", "correct": false, "explanation": "This is incorrect; there is not enough data on water clouds there." },
+                { "text": "TRAPPIST-1 d", "correct": false, "explanation": "This is incorrect; TRAPPIST-1 d does not have confirmed water clouds." },
+                { "text": "K2-18 b", "correct": true, "explanation": "K2-18 b is known for the detection of water vapor in its atmosphere." },
+            ]
+        },
+        {
+            "id": 18,
+            "question": "What is the largest volcano in the solar system?",
+            "category": "Planetary Geology",
+            "difficulty": "Hard",
+            "answers": [
+                { "text": "Olympus Mons on Mars", "correct": true, "explanation": "Olympus Mons is the largest volcano and shield volcano in the solar system." },
+                { "text": "Mauna Loa on Earth", "correct": false, "explanation": "While large, Mauna Loa is not as large as Olympus Mons." },
+                { "text": "Mount Everest", "correct": false, "explanation": "This is incorrect; Mount Everest is not a volcano." },
+                { "text": "Mount St. Helens", "correct": false, "explanation": "This is incorrect; it is much smaller than Olympus Mons." }
+            ]
+        },
+        {
+            "id": 19,
+            "question": "What do scientists believe is the main reason for the extinction of the dinosaurs?",
+            "category": "Earth Science",
+            "difficulty": "Hard",
+            "answers": [
+                
+                { "text": "Volcanic activity", "correct": false, "explanation": "While significant, it is not seen as the main reason compared to the asteroid impact." },
+                { "text": "Asteroid impact", "correct": true, "explanation": "The asteroid impact theory is widely accepted for the extinction of dinosaurs." },
+                { "text": "Climate change", "correct": false, "explanation": "Climate change contributed, but the impact is seen as more decisive." },
+                { "text": "Disease", "correct": false, "explanation": "This is incorrect; it is not considered the main reason for extinction." }
+            ]
+        },
+        {
+            "id": 20,
+            "question": "What is the coldest known place in the universe?",
+            "category": "Astrophysics",
+            "difficulty": "Hard",
+            "answers": [
+                
+                { "text": "The Great Attractor", "correct": false, "explanation": "This is incorrect; it is not a temperature comparison." },
+                { "text": "The North Pole", "correct": false, "explanation": "This is incorrect; it is not comparable to nebula temperatures." },
+                { "text": "The Boomerang Nebula", "correct": true, "explanation": "The Boomerang Nebula is the coldest known natural place in the universe." },
+                { "text": "The center of black holes", "correct": false, "explanation": "This is incorrect; the center of black holes does not measure temperature this way." }
+            ]
+        },
+        {
+            "id": 21,
+            "question": "What phenomenon causes a planet to have seasons?",
+            "category": "Astronomy",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "The tilt of its axis", "correct": true, "explanation": "A planet's axial tilt is responsible for seasonal changes." },
+                { "text": "The distance from the sun", "correct": false, "explanation": "This is incorrect; it is primarily the tilt that causes seasons." },
+                { "text": "The speed of its orbit", "correct": false, "explanation": "This is incorrect; the orbital speed does not affect seasons." },
+                { "text": "The gravitational pull of the moon", "correct": false, "explanation": "This is incorrect; the moon affects tides, not seasons." }
+            ]
+        },
+        {
+            "id": 22,
+            "question": "Which planet has the most moons?",
+            "category": "Astronomy",
+            "difficulty": "Hard",
+            "answers": [
+            
+                { "text": "Jupiter", "correct": false, "explanation": "This is incorrect; while Jupiter has many moons, it has fewer than Saturn." },
+                { "text": "Mars", "correct": false, "explanation": "This is incorrect; Mars has only two moons." },
+                { "text": "Earth", "correct": false, "explanation": "This is incorrect; Earth has only one moon." },
+                { "text": "Saturn", "correct": true, "explanation": "Saturn currently holds the record for the most moons." },
+            ]
+        },
+        {
+            "id": 23,
+            "question": "What is the closest star system to Earth?",
+            "category": "Astrophysics",
+            "difficulty": "Medium",
+            "answers": [
+                
+                { "text": "Proxima Centauri", "correct": false, "explanation": "This is incorrect; Proxima Centauri is part of the Alpha Centauri system." },
+                { "text": "Alpha Centauri", "correct": true, "explanation": "Alpha Centauri is the closest star system to Earth." },
+                { "text": "Sirius", "correct": false, "explanation": "This is incorrect; Sirius is farther than Alpha Centauri." },
+                { "text": "Betelgeuse", "correct": false, "explanation": "This is incorrect; Betelgeuse is much farther away." }
+            ]
+        },
+        {
+            "id": 24,
+            "question": "What is the primary component of the Sun?",
+            "category": "Astrophysics",
+            "difficulty": "Easy",
+            "answers": [
+                { "text": "Hydrogen", "correct": true, "explanation": "The Sun is primarily composed of hydrogen." },
+                { "text": "Helium", "correct": false, "explanation": "This is incorrect; helium is present but is not the main component." },
+                { "text": "Carbon", "correct": false, "explanation": "This is incorrect; carbon is present in very small amounts." },
+                { "text": "Oxygen", "correct": false, "explanation": "This is incorrect; oxygen is not a primary component of the Sun." }
+            ]
+        },
+        {
+            "id": 25,
+            "question": "What is the name of the galaxy that contains our solar system?",
+            "category": "Astrophysics",
+            "difficulty": "Easy",
+            "answers": [
+
+                { "text": "The Whirlpool Galaxy", "correct": false, "explanation": "This is incorrect; it is not the galaxy containing our solar system." },
+                { "text": "The Triangulum Galaxy", "correct": false, "explanation": "This is incorrect; it is also a separate galaxy." },
+                { "text": "The Milky Way", "correct": true, "explanation": "Our solar system is located in the Milky Way galaxy." },
+                { "text": "Andromeda", "correct": false, "explanation": "This is incorrect; the Andromeda galaxy is a separate galaxy." }
+            ]
+        },
+
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const titles = {
+            5: "Exoplanet Novice",
+            10: "Exoplanet Explorer",
+            15: "Exoplanet Master",
+            20: "Exoplanet Champion",
+            25: "Exoplanet Legend"
+        };
+
+        function loadQuestion() {
+            const currentQuestionData = quizData[currentQuestionIndex];
+            const quizContainer = document.getElementById("quiz");
+           
+            quizContainer.innerHTML = `
+                <div class="category">Category: ${currentQuestionData.category}</div>
+                <div class="difficulty">Difficulty: ${currentQuestionData.difficulty}</div>
+                <div class="question">${currentQuestionData.question}</div>
+                <ul class="answers">
+                    ${currentQuestionData.answers.map((answer, index) => `
+                        <li>
+                            <button onclick="checkAnswer(${index})">${answer.text}</button>
+                        </li>
+                    `).join("")}
+                </ul>
+            `;
+            updateScoreDisplay();
+        }
+    
+
+        function startQuiz() {
+            document.querySelector(".intro").style.display = "none"; // Hide introduction
+            document.getElementById("quiz").style.display = "block"; // Show quiz container
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+        document.getElementById("nextBtn").style.display = "none"; // Hide Next button
+        document.getElementById("result").innerHTML = ""; // Clear result
+    } else {
+        const title = getTitle(score);
+        document.getElementById("quiz").innerHTML = `
+            <div class="score">Quiz completed! Final Score: ${score}/${quizData.length}</div>
+            <div class="level-up">${title}</div>
+        `;
+        document.getElementById("nextBtn").style.display = "none"; // Hide Next button
+    }
+}
+
+
+
+    function getTitle(score) {
+        if (score >= 25) return titles[25];
+        else if (score === 5) return titles[5];
+        else if (score === 10) return titles[10];
+        else if (score === 15) return titles[15];
+        else if (score === 20) return titles[20];
+        return "No Title";
+    }
+
+
+    function checkAnswer(selectedIndex) {
+    const currentQuestion = quizData[currentQuestionIndex];
+    const selectedAnswer = currentQuestion.answers[selectedIndex];
+    const resultElement = document.getElementById("result");
+
+    if (selectedAnswer.correct) {
+        score++;
+        resultElement.innerHTML = "Correct! " + selectedAnswer.explanation;
+    } else {
+        resultElement.innerHTML = "Wrong! " + selectedAnswer.explanation;
+    }
+
+    // Disable all buttons after selecting an answer
+    const answerButtons = document.querySelectorAll(".answers button");
+    answerButtons.forEach(button => {
+        button.disabled = true; // Disable each button
+    });
+
+    document.getElementById("nextBtn").style.display = "block"; // Show Next button
+}
+
+        function updateScoreDisplay() {
+            document.getElementById("scoreDisplay").innerHTML = `Score: ${score}/${quizData.length}`;
+        }
+    </script>
+</body>
+</html>
